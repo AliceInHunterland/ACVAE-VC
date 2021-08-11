@@ -2,7 +2,6 @@ import os
 import argparse
 import torch
 import json
-from attrdict import AttrDict
 import numpy as np
 import re
 import pickle
@@ -73,7 +72,6 @@ def find_newest_model_file(model_dir, tag):
 
 def synthesis(melspec, pwg, pwg_config, savepath, device):
     ## Parallel WaveGAN / MelGAN
-    #import pdb; pdb.set_trace()
     melspec = torch.tensor(melspec, dtype=torch.float).to(device)
     #start = time.time()
     x = pwg.inference(melspec).view(-1)
@@ -83,7 +81,6 @@ def synthesis(melspec, pwg, pwg_config, savepath, device):
     #print ("real time factor (waveform generation): {0}".format(rtf2))
     
     # save as PCM 16 bit wav file
-    #import pdb;pdb.set_trace() # Breakpoint
     if not os.path.exists(os.path.dirname(savepath)):
         os.makedirs(os.path.dirname(savepath))
     sf.write(savepath, x.detach().cpu().clone().numpy(), pwg_config["sampling_rate"], "PCM_16")
@@ -149,7 +146,6 @@ def main():
     for tag in ['enc', 'dec', 'cls']:
         model_dir = os.path.join(args.model_rootdir,args.experiment_name)
         mfilename = find_newest_model_file(model_dir, tag)
-        #import pdb; pdb.set_trace()
         path = os.path.join(args.model_rootdir,args.experiment_name,mfilename)
         if path is not None:
             checkpoint = torch.load(path, map_location=device)
@@ -194,7 +190,6 @@ def main():
                 num_frames = src_melspec.shape[2]
                 conv_melspec = models['dec'](models['enc'](src_melspec, l_s)[0], l_t, num_frames)[0]
 
-                #import pdb; pdb.set_trace()
                 conv_melspec = conv_melspec[0,:,:].detach().cpu().clone().numpy()
                 conv_melspec = conv_melspec.T # n_frames x n_mels
 
